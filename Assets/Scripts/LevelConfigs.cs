@@ -16,9 +16,15 @@ public class LevelConfig
     public static float WorldScreenHeight;
     public static float WorldScreenWidth;
 
-    static LevelConfig()
+    public PlayerConfig PlayerConfig;
+
+    public LevelConfig()
     {
         WorldScreenHeight = Camera.main.orthographicSize * 2f;
         WorldScreenWidth = WorldScreenHeight / Screen.height * Screen.width;
+
+        PlayerConfig = new PlayerConfig();
+        PlayerConfig.Scale = WorldScreenWidth * PlayerConfig.Scale;
+        PlayerConfig.Speed = WorldScreenWidth * PlayerConfig.Speed;
     }
 }

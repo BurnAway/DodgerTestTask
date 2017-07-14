@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class Location : MonoBehaviour
 {
-    private PlayerConfig _playerConfig = new PlayerConfig();
+    private LevelConfig _levelConfig;
+
     private IPlayer _player;
     
     void Start()
@@ -14,7 +15,10 @@ public class Location : MonoBehaviour
 
     private void Initialize()
     {
-        _player = new Player(_playerConfig);
+        _levelConfig = new LevelConfig();
+        _player = new Player();
+        _player.Initialize(_levelConfig.PlayerConfig);
+
     }
 
     void Update()
