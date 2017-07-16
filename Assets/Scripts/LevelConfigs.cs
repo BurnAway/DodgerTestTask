@@ -10,6 +10,7 @@ public class LevelConfig
 
     public PlayerConfig PlayerConfig;
     public LocationConfig LocationConfig;
+    public CameraConfig CameraConfig;
 
     public LevelConfig()
     {
@@ -23,6 +24,9 @@ public class LevelConfig
         LocationConfig = new LocationConfig();
         LocationConfig.Height = WorldScreenHeight * 2 * LocationConfig.Height;
         LocationConfig.Width = WorldScreenWidth * 2 * LocationConfig.Width;
+
+        CameraConfig = new CameraConfig();
+        CameraConfig.BorderMove = 1 - 2 * CameraConfig.BorderMove;
     }
 }
 
@@ -39,4 +43,10 @@ public class LocationConfig
 {
     public float Width = 1;
     public float Height = 1;
+}
+
+/// <summary> Настройки камеры </summary>
+public class CameraConfig
+{
+    public float BorderMove = 0.25f;
 }

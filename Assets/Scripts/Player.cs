@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using CnControls;
 using UnityEngine;
 
-class Player : IPlayer
+public class Player : IPlayer
 {
-    private PlayerView _playerView;
+    public PlayerView View { get; private set; }
 
     public Player()
     {
@@ -17,7 +17,14 @@ class Player : IPlayer
         HealthPoint = playerConfig.HealthPoint;
         Position = Vector2.zero;
 
-        _playerView = new PlayerView(this, playerConfig);
+        GameObject gameObject = UnityEngine.Object.Instantiate(Resources.Load("Prefabs/Player")) as GameObject;
+
+        View = gameObject.GetComponent<PlayerView>();
+        View.Initialize(this);
+
+        float heightInPixels = gameObject.GetComponent<SpriteRenderer>().bounds.size.y;
+        gameObject.transform.position = Position;
+        gameObject.transform.localScale = new Vector3(playerConfig.Scale / heightInPixels, playerConfig.Scale / heightInPixels, 1);
     }
 
     #region IPlayer
@@ -28,7 +35,7 @@ class Player : IPlayer
     {
         if (InputController.AcceptInput)
         {
-            _playerView.MoveTo();
+            View.MoveTo();
         }
     }
 #endregion
