@@ -11,7 +11,6 @@ public class LevelConfig
     public PlayerConfig PlayerConfig;
     public LocationConfig LocationConfig;
     public CameraConfig CameraConfig;
-    public EnemyConfig EnemyConfig;
 
     public LevelConfig()
     {
@@ -28,11 +27,6 @@ public class LevelConfig
 
         CameraConfig = new CameraConfig();
         CameraConfig.BorderMove = 1 - 2 * CameraConfig.BorderMove;
-
-        EnemyConfig = new EnemyConfig();
-        EnemyConfig.Scale = WorldScreenWidth * EnemyConfig.Scale;
-        EnemyConfig.Speed = WorldScreenWidth * EnemyConfig.Speed;
-        EnemyConfig.AggroRadius = WorldScreenWidth * EnemyConfig.AggroRadius;
     }
 }
 
@@ -57,11 +51,10 @@ public class CameraConfig
     public float BorderMove = 0.25f;
 }
 
-/// <summary> Настройки противника </summary>
+/// <summary>
+/// Настройки противника
+/// </summary>
 public class EnemyConfig
 {
-    public float Scale = 0.05f;
-    public float Speed = 0.1f;
-    public float AggroRadius = 0.2f;
-    public float SleepTime = 3f;
+    
 }

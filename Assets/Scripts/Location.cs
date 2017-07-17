@@ -27,6 +27,9 @@ public class Location : MonoBehaviour
         _player = new Player();
         _player.Initialize(_levelConfig.PlayerConfig);
 
+        Enemy obj = new Enemy();
+        obj.Initialize(_levelConfig.EnemyConfig);
+
         CameraController camera = CameraController.GetComponent<CameraController>();
         camera.Initialize(this, _player.View.transform, _levelConfig.CameraConfig);
     }
