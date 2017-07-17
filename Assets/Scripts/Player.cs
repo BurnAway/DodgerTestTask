@@ -13,7 +13,7 @@ public interface IPlayer
     void Update(float deltaTime);
 }
 
-public class Player : IPlayer
+public class Player : IPlayer, ITargetable
 {
     public PlayerView View { get; private set; }
     
@@ -31,7 +31,7 @@ public class Player : IPlayer
         gameObject.transform.localScale = new Vector3(playerConfig.Scale / heightInPixels, playerConfig.Scale / heightInPixels, 1);
     }
 
-    #region IPlayer
+#region IPlayer
     public float Speed { get; private set; }
     public int HealthPoint { get; private set; }
     public void Update(float deltaTime)
@@ -42,4 +42,9 @@ public class Player : IPlayer
         }
     }
 #endregion
+
+#region ITargetable
+    public Vector2 Position { get { return View.transform.position; }}
+
+    #endregion
 }

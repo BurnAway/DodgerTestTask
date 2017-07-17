@@ -63,5 +63,5 @@ public class EnemyConfig
     public float Scale = 0.05f;
     public float Speed = 0.1f;
     public float AggroRadius = 0.2f;
-    public float SleepTime = 3f;
+    public float InactiveTime = 3f;
 }

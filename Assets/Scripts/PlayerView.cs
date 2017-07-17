@@ -16,11 +16,11 @@ public class PlayerView : MonoBehaviour
     {
         float dx = CnInputManager.GetAxis("Horizontal");
         float dy = CnInputManager.GetAxis("Vertical");
-
+        
         Vector2 direction = new Vector2(dx, dy).normalized;
-
+        
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
-
+        
         transform.position = new Vector2(transform.position.x + direction.x * _model.Speed * Time.deltaTime, transform.position.y + direction.y * _model.Speed * Time.deltaTime);
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
     }

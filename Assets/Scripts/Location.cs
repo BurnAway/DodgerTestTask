@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class Location : MonoBehaviour
 {
+    [HideInInspector]
+    public Player Player { get; private set; }
+
     public GameObject CameraController;
     public Rect Rect;
 
@@ -11,8 +14,8 @@ public class Location : MonoBehaviour
     private float _width;
     private float _height;
 
-    private IPlayer _player;
-    
+    private Enemy enemy;
+
     void Start()
     {
         Initialize();
@@ -24,14 +27,14 @@ public class Location : MonoBehaviour
 
         InitializeLocation();
 
-        _player = new Player();
-        _player.Initialize(_levelConfig.PlayerConfig);
+        Player = new Player();
+        Player.Initialize(_levelConfig.PlayerConfig);
 
-        Enemy obj = new Enemy();
-        obj.Initialize(_levelConfig.EnemyConfig);
+        enemy = new Enemy(this);
+        enemy.Initialize(_levelConfig.EnemyConfig);
 
-        CameraController camera = CameraController.GetComponent<CameraController>();
-        camera.Initialize(this, _player.View.transform, _levelConfig.CameraConfig);
+        CameraController cameraController = CameraController.GetComponent<CameraController>();
+        cameraController.Initialize(this, Player.View.transform, _levelConfig.CameraConfig);
     }
 
     private void InitializeLocation()
@@ -52,6 +55,7 @@ public class Location : MonoBehaviour
 
     void Update()
     {
-        _player.Update(Time.deltaTime);
+        Player.Update(Time.deltaTime);
+        enemy.Update(Time.deltaTime);
     }
 }
