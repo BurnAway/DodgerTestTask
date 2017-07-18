@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using UniRx;
 using UnityEngine;
 
 public interface IEnemyState
@@ -7,6 +10,12 @@ public interface IEnemyState
     void Enter();
     void Update();
     void Exit();
+    void OnCollisionEnter(Collision2D collision);
+}
+
+public enum TypeState
+{
+    
 }
 
 public abstract class EnemyState : IEnemyState
@@ -20,10 +29,9 @@ public abstract class EnemyState : IEnemyState
 
 #region IEnemyState
     public virtual void Enter(){}
-
     public virtual void Update() { }
-
     public virtual void Exit() { }
+    public virtual void OnCollisionEnter(Collision2D collision) { }
 #endregion
 
     /// <summary> Передвигает в указанном направлении </summary>
@@ -60,6 +68,15 @@ public class WalkState : EnemyState
 
         Move(_direction);
     }
+    
+    public override void OnCollisionEnter(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag(LiteralConstant.EnemyTag))
+        {
+            Vector2 direction = (Vector2)Owner.Transform.position - collision.contacts.First().point;
+            Owner.SetState(new BounceState(Owner, direction, this));
+        }
+    }
 }
 
 /// <summary> Состояние преследования игрока </summary>
@@ -76,8 +93,21 @@ public class HuntState : EnemyState
     {
         Vector2 direction = _target.Position - (Vector2)(Owner.Transform.position);
         direction = direction.normalized;
-
         Move(direction);
+    }
+
+    public override void OnCollisionEnter(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag(LiteralConstant.PlayerTag))
+        {
+            Owner.SetState(new InactiveState(Owner, this));
+        }
+
+        if (collision.gameObject.CompareTag(LiteralConstant.EnemyTag))
+        {
+            Vector2 direction = (Vector2)Owner.Transform.position - collision.contacts.First().point;
+            Owner.SetState(new BounceState(Owner, direction, this));
+        }
     }
 }
 
@@ -85,29 +115,72 @@ public class HuntState : EnemyState
 public class InactiveState : EnemyState
 {
     private float _inactiveTime;
-    private IEnemyState _prevState;
+    private EnemyState _prevState;
 
-    public InactiveState(IEnemy owner, IEnemyState prevState)
+    public InactiveState(IEnemy owner, EnemyState prevState)
         : base(owner)
     {
         _inactiveTime = owner.InactiveTime;
         _prevState = prevState;
+
+        Observable.FromCoroutine(Waiting).Subscribe();
+    }
+    
+    IEnumerator Waiting()
+    {
+        yield return new WaitForSeconds(_inactiveTime);
+
+        Owner.SetState(_prevState);
+    }
+    
+    public override void OnCollisionEnter(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag(LiteralConstant.EnemyTag))
+        {
+            Vector2 direction = (Vector2)Owner.Transform.position - collision.contacts.First().point;
+            Owner.SetState(new BounceState(Owner, direction, this));
+        }
     }
 }
 
 /// <summary> Состояние отскока при столкновении друг с другом</summary>
 public class BounceState : EnemyState
 {
-    private readonly IEnemyState _prevState;
-    private readonly Vector2 _direction;
-    private readonly Vector2 _startPosition;
+    private EnemyState _prevState;
+    private Vector2 _direction;
+    private Vector2 _startPosition;
 
-    public BounceState(IEnemy owner, Vector2 direction, IEnemyState prevState)
+    public BounceState(IEnemy owner, Vector2 direction, EnemyState prevState)
         : base(owner)
     {
         _direction = direction.normalized;
+        Debug.Log("Bounce ctor");
         _prevState = prevState;
         _startPosition = Owner.Transform.position;
     }
 
+    public override void Update()
+    {
+        Debug.Log(Vector2.Distance(Owner.Transform.position, _startPosition));
+        Debug.Log(Owner.BounceDistance);
+        if (Vector2.Distance(Owner.Transform.position, _startPosition) < Owner.BounceDistance)
+        {
+            Bounce(_direction);
+            return;
+        }
+
+        Owner.SetState(_prevState);
+    }
+
+    /// <summary> Осуществляет отскок в заданном направлении </summary>
+    private void Bounce(Vector2 direction)
+    {
+        // Скорость при отскоке увеличивается
+        float bounceSpeed = Owner.Speed * 3;
+
+        float positionX = Owner.Transform.position.x + direction.x * bounceSpeed * Time.deltaTime;
+        float positionY = Owner.Transform.position.y + direction.y * bounceSpeed * Time.deltaTime;
+
+        Owner.Transform.position = new Vector2(positionX, positionY);
+    }
 }

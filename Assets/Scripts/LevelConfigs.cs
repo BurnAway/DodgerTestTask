@@ -33,6 +33,7 @@ public class LevelConfig
         EnemyConfig.Scale = WorldScreenWidth * EnemyConfig.Scale;
         EnemyConfig.Speed = WorldScreenWidth * EnemyConfig.Speed;
         EnemyConfig.AggroRadius = WorldScreenWidth * EnemyConfig.AggroRadius;
+        EnemyConfig.BounceDistance = WorldScreenWidth * EnemyConfig.BounceDistance;
     }
 }
 
@@ -63,5 +64,6 @@ public class EnemyConfig
     public float Scale = 0.05f;
     public float Speed = 0.1f;
     public float AggroRadius = 0.2f;
+    public float BounceDistance = 0.06f;
     public float InactiveTime = 3f;
 }

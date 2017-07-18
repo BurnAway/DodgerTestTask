@@ -15,6 +15,7 @@ public class Location : MonoBehaviour
     private float _height;
 
     private Enemy enemy;
+    private Enemy enemy1;
 
     void Start()
     {
@@ -32,6 +33,11 @@ public class Location : MonoBehaviour
 
         enemy = new Enemy(this);
         enemy.Initialize(_levelConfig.EnemyConfig);
+        enemy.Transform.position = new Vector3(1f, -1f);
+
+        enemy1 = new Enemy(this);
+        enemy1.Initialize(_levelConfig.EnemyConfig);
+        enemy1.Transform.position = new Vector3(-1f, -1f);
 
         CameraController cameraController = CameraController.GetComponent<CameraController>();
         cameraController.Initialize(this, Player.View.transform, _levelConfig.CameraConfig);
@@ -57,5 +63,6 @@ public class Location : MonoBehaviour
     {
         Player.Update(Time.deltaTime);
         enemy.Update(Time.deltaTime);
+        enemy1.Update(Time.deltaTime);
     }
 }
