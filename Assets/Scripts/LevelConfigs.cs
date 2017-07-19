@@ -12,6 +12,7 @@ public class LevelConfig
     public LocationConfig LocationConfig;
     public CameraConfig CameraConfig;
     public EnemyConfig EnemyConfig;
+    public ProjectileConfig ProjectileConfig;
 
     public LevelConfig()
     {
@@ -34,6 +35,11 @@ public class LevelConfig
         EnemyConfig.Speed = WorldScreenWidth * EnemyConfig.Speed;
         EnemyConfig.AggroRadius = WorldScreenWidth * EnemyConfig.AggroRadius;
         EnemyConfig.BounceDistance = WorldScreenWidth * EnemyConfig.BounceDistance;
+
+        ProjectileConfig = new ProjectileConfig();
+        ProjectileConfig.Width = WorldScreenWidth * ProjectileConfig.Width;
+        ProjectileConfig.Height = WorldScreenWidth * ProjectileConfig.Height;
+        ProjectileConfig.Speed = WorldScreenWidth * ProjectileConfig.Speed;
     }
 }
 
@@ -43,6 +49,8 @@ public class PlayerConfig
     public float Scale = 0.05f;
     public float Speed = 0.1f;
     public int HealthPoint = 3;
+    public float FireDelay = 0.5f;
+    public float ImmuneTime = 2f;
 }
 
 /// <summary> Настройки локации </summary>
@@ -50,6 +58,7 @@ public class LocationConfig
 {
     public float Width = 1;
     public float Height = 1;
+    public float EnemySpawnDelay = 4;
 }
 
 /// <summary> Настройки камеры </summary>
@@ -66,4 +75,16 @@ public class EnemyConfig
     public float AggroRadius = 0.2f;
     public float BounceDistance = 0.06f;
     public float InactiveTime = 3f;
+    public float DeathTime = 1f;
+    public int PoolSize = 10;
+}
+
+/// <summary> Настройки снарядов </summary>
+public class ProjectileConfig
+{
+    public float Width = 0.01f;
+    public float Height = 0.05f;
+    public float Speed = 0.2f;
+    public float LifeTime = 6f;
+    public int PoolSize = 10;
 }

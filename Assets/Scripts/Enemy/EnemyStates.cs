@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using UniRx;
 using UnityEngine;
 
@@ -11,11 +12,6 @@ public interface IEnemyState
     void Update();
     void Exit();
     void OnCollisionEnter(Collision2D collision);
-}
-
-public enum TypeState
-{
-    
 }
 
 public abstract class EnemyState : IEnemyState
@@ -31,7 +27,13 @@ public abstract class EnemyState : IEnemyState
     public virtual void Enter(){}
     public virtual void Update() { }
     public virtual void Exit() { }
-    public virtual void OnCollisionEnter(Collision2D collision) { }
+    public virtual void OnCollisionEnter(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag(LiteralConstant.ProjectileTag))
+        {
+            Owner.SetState(new DeathState(Owner));
+        }
+    }
 #endregion
 
     /// <summary> Передвигает в указанном направлении </summary>
@@ -68,9 +70,10 @@ public class WalkState : EnemyState
 
         Move(_direction);
     }
-    
+
     public override void OnCollisionEnter(Collision2D collision)
     {
+        base.OnCollisionEnter(collision);
         if (collision.gameObject.CompareTag(LiteralConstant.EnemyTag))
         {
             Vector2 direction = (Vector2)Owner.Transform.position - collision.contacts.First().point;
@@ -98,6 +101,7 @@ public class HuntState : EnemyState
 
     public override void OnCollisionEnter(Collision2D collision)
     {
+        base.OnCollisionEnter(collision);
         if (collision.gameObject.CompareTag(LiteralConstant.PlayerTag))
         {
             Owner.SetState(new InactiveState(Owner, this));
@@ -132,9 +136,10 @@ public class InactiveState : EnemyState
 
         Owner.SetState(_prevState);
     }
-    
+
     public override void OnCollisionEnter(Collision2D collision)
     {
+        base.OnCollisionEnter(collision);
         if (collision.gameObject.CompareTag(LiteralConstant.EnemyTag))
         {
             Vector2 direction = (Vector2)Owner.Transform.position - collision.contacts.First().point;
@@ -154,15 +159,12 @@ public class BounceState : EnemyState
         : base(owner)
     {
         _direction = direction.normalized;
-        Debug.Log("Bounce ctor");
         _prevState = prevState;
         _startPosition = Owner.Transform.position;
     }
 
     public override void Update()
     {
-        Debug.Log(Vector2.Distance(Owner.Transform.position, _startPosition));
-        Debug.Log(Owner.BounceDistance);
         if (Vector2.Distance(Owner.Transform.position, _startPosition) < Owner.BounceDistance)
         {
             Bounce(_direction);
@@ -182,5 +184,22 @@ public class BounceState : EnemyState
         float positionY = Owner.Transform.position.y + direction.y * bounceSpeed * Time.deltaTime;
 
         Owner.Transform.position = new Vector2(positionX, positionY);
+    }
+}
+
+/// <summary> Состояние смерти противника </summary>
+public class DeathState : EnemyState
+{
+    public DeathState(IEnemy owner)
+        : base(owner)
+    {
+        Owner.Transform.DOScale(Vector3.zero, Owner.DeathTime).Play();
+        Observable.FromCoroutine(Death).Subscribe();
+    }
+
+    public IEnumerator Death()
+    {
+        yield return new WaitForSeconds(Owner.DeathTime);
+        EventManager.OnEnemyDied(Owner);
     }
 }

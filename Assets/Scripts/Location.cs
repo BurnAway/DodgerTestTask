@@ -1,46 +1,30 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
 public class Location : MonoBehaviour
 {
-    [HideInInspector]
     public Player Player { get; private set; }
-
-    public GameObject CameraController;
     public Rect Rect;
 
+    [SerializeField] private GameObject _spawnPoints;
+    [SerializeField] private GameObject _cameraController;
+    [SerializeField] private Floor _floor;
+    [SerializeField] private GUIController _gui;
+
+    private IDisposable _spawnController;
     private LevelConfig _levelConfig;
+    private EnemyPool _enemyPool;
+    private List<IEnemy> _enemies;
     private float _width;
     private float _height;
-
-    private Enemy enemy;
-    private Enemy enemy1;
+    private int _score;
 
     void Start()
     {
         Initialize();
-    }
-
-    private void Initialize()
-    {
-        _levelConfig = new LevelConfig();
-
-        InitializeLocation();
-
-        Player = new Player();
-        Player.Initialize(_levelConfig.PlayerConfig);
-
-        enemy = new Enemy(this);
-        enemy.Initialize(_levelConfig.EnemyConfig);
-        enemy.Transform.position = new Vector3(1f, -1f);
-
-        enemy1 = new Enemy(this);
-        enemy1.Initialize(_levelConfig.EnemyConfig);
-        enemy1.Transform.position = new Vector3(-1f, -1f);
-
-        CameraController cameraController = CameraController.GetComponent<CameraController>();
-        cameraController.Initialize(this, Player.View.transform, _levelConfig.CameraConfig);
     }
 
     private void InitializeLocation()
@@ -55,14 +39,72 @@ public class Location : MonoBehaviour
 
         float xSide = bounds.size.x * transform.localScale.x;
         float ySide = bounds.size.y * transform.localScale.y;
-        
+
         Rect = new Rect(new Vector2(-xSide / 2, -ySide / 2), new Vector2(xSide, ySide));
+    }
+
+    private void Initialize()
+    {
+        _score = 0;
+
+        _levelConfig = new LevelConfig();
+
+        InitializeLocation();
+
+        _floor.Initialize(OnEnemyLeftArea);
+
+        Player = new Player();
+        Player.Initialize(_levelConfig.PlayerConfig, _levelConfig.ProjectileConfig);
+        
+        CameraController cameraController = _cameraController.GetComponent<CameraController>();
+        cameraController.Initialize(this, Player.View.transform, _levelConfig.CameraConfig);
+
+        _enemyPool = new EnemyPool(this, _levelConfig.EnemyConfig, _spawnPoints);
+        _enemyPool.Initialize();
+
+        EventManager.OnEnemyDied += OnEnemyDied;
+
+        _gui.Initialize(_levelConfig.PlayerConfig);
+        _spawnController = Observable.FromCoroutine(SpawnEnemy).Subscribe();
+    }
+
+    private void OnEnemyLeftArea(IEnemy enemy)
+    {
+        _enemyPool.DisposeEnemy(enemy);
+    }
+    
+    private void OnEnemyDied(IEnemy enemy)
+    {
+        _enemyPool.DisposeEnemy(enemy);
+        ScoreUp();
+    }
+
+    private void ScoreUp()
+    {
+        _score++;
+        EventManager.OnScoreUp(_score);
     }
 
     void Update()
     {
-        Player.Update(Time.deltaTime);
-        enemy.Update(Time.deltaTime);
-        enemy1.Update(Time.deltaTime);
+        foreach (IEnemy enemy in _enemyPool.ActiveEnemy)
+        {
+            enemy.Tick();
+        }
+    }
+
+    IEnumerator SpawnEnemy()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(_levelConfig.LocationConfig.EnemySpawnDelay);
+            _enemyPool.TakeEnemy();
+        }
+    }
+    
+    private void OnDestroy()
+    {
+        EventManager.OnEnemyDied -= OnEnemyDied;
+        _spawnController.Dispose();
     }
 }

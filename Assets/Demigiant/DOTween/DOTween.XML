@@ -50,7 +50,7 @@
             Contains all instance-based methods
             </summary>
         </member>
-        <member name="F:DG.Tweening.Core.DOTweenComponent.inspectorUpdater">
+        <member name="F:DG.Tweening.Core.DOTweenComponent.inspectorTickr">
             <summary>Used internally inside Unity Editor, as a trick to update DOTween's inspector at every frame</summary>
         </member>
         <member name="M:DG.Tweening.Core.DOTweenComponent.SetCapacity(System.Int32,System.Int32)">
@@ -137,18 +137,18 @@
             Public so it can be used by external ease factories
             </summary>
         </member>
-        <member name="T:DG.Tweening.Core.Enums.UpdateNotice">
+        <member name="T:DG.Tweening.Core.Enums.TickNotice">
             <summary>
             Additional notices passed to plugins when updating.
             Public so it can be used by custom plugins. Internally, only PathPlugin uses it
             </summary>
         </member>
-        <member name="F:DG.Tweening.Core.Enums.UpdateNotice.None">
+        <member name="F:DG.Tweening.Core.Enums.TickNotice.None">
             <summary>
             None
             </summary>
         </member>
-        <member name="F:DG.Tweening.Core.Enums.UpdateNotice.RewindStep">
+        <member name="F:DG.Tweening.Core.Enums.TickNotice.RewindStep">
             <summary>
             Lets the plugin know that we restarted or rewinded
             </summary>
@@ -222,7 +222,7 @@
         <member name="M:DG.Tweening.CustomPlugins.PureQuaternionPlugin.GetSpeedBasedDuration(DG.Tweening.Plugins.Options.NoOptions,System.Single,UnityEngine.Quaternion)">
             <summary>INTERNAL: do not use</summary>
         </member>
-        <member name="M:DG.Tweening.CustomPlugins.PureQuaternionPlugin.EvaluateAndApply(DG.Tweening.Plugins.Options.NoOptions,DG.Tweening.Tween,System.Boolean,DG.Tweening.Core.DOGetter{UnityEngine.Quaternion},DG.Tweening.Core.DOSetter{UnityEngine.Quaternion},System.Single,UnityEngine.Quaternion,UnityEngine.Quaternion,System.Single,System.Boolean,DG.Tweening.Core.Enums.UpdateNotice)">
+        <member name="M:DG.Tweening.CustomPlugins.PureQuaternionPlugin.EvaluateAndApply(DG.Tweening.Plugins.Options.NoOptions,DG.Tweening.Tween,System.Boolean,DG.Tweening.Core.DOGetter{UnityEngine.Quaternion},DG.Tweening.Core.DOSetter{UnityEngine.Quaternion},System.Single,UnityEngine.Quaternion,UnityEngine.Quaternion,System.Single,System.Boolean,DG.Tweening.Core.Enums.TickNotice)">
             <summary>INTERNAL: do not use</summary>
         </member>
         <member name="T:DG.Tweening.DOTween">
@@ -249,7 +249,7 @@
             <para>Default: 1</para></summary>
         </member>
         <member name="F:DG.Tweening.DOTween.useSmoothDeltaTime">
-            <summary>If TRUE, DOTween will use Time.smoothDeltaTime instead of Time.deltaTime for UpdateType.Normal and UpdateType.Late tweens
+            <summary>If TRUE, DOTween will use Time.smoothDeltaTime instead of Time.deltaTime for TickType.Normal and TickType.Late tweens
             (unless they're set as timeScaleIndependent, in which case a value between the last timestep
             and <see cref="F:DG.Tweening.DOTween.maxSmoothUnscaledTime"/> will be used instead).
             Setting this to TRUE will lead to smoother animations.
@@ -268,9 +268,9 @@
             <summary>If TRUE draws path gizmos in Unity Editor (if the gizmos button is active).
             Deactivate this if you want to avoid gizmos overhead while in Unity Editor</summary>
         </member>
-        <member name="F:DG.Tweening.DOTween.defaultUpdateType">
+        <member name="F:DG.Tweening.DOTween.defaultTickType">
             <summary>Default updateType for new tweens.
-            <para>Default: UpdateType.Normal</para></summary>
+            <para>Default: TickType.Normal</para></summary>
         </member>
         <member name="F:DG.Tweening.DOTween.defaultTimeScaleIndependent">
             <summary>Sets whether Unity's timeScale should be taken into account by default or not.
@@ -753,19 +753,19 @@
         </member>
         <member name="T:DG.Tweening.DOVirtual">
             <summary>
-            Creates virtual tweens that can be used to change other elements via their OnUpdate calls
+            Creates virtual tweens that can be used to change other elements via their OnTick calls
             </summary>
         </member>
         <member name="M:DG.Tweening.DOVirtual.Float(System.Single,System.Single,System.Single,DG.Tweening.TweenCallback{System.Single})">
             <summary>
             Tweens a virtual float.
             You can add regular settings to the generated tween,
-            but do not use <code>SetUpdate</code> or you will overwrite the onVirtualUpdate parameter
+            but do not use <code>SetTick</code> or you will overwrite the onVirtualTick parameter
             </summary>
             <param name="from">The value to start from</param>
             <param name="to">The value to tween to</param>
             <param name="duration">The duration of the tween</param>
-            <param name="onVirtualUpdate">A callback which must accept a parameter of type float, called at each update</param>
+            <param name="onVirtualTick">A callback which must accept a parameter of type float, called at each update</param>
             <returns></returns>
         </member>
         <member name="M:DG.Tweening.DOVirtual.EasedValue(System.Single,System.Single,System.Single,DG.Tweening.Ease)">
@@ -2007,15 +2007,15 @@
             <summary>Sets the recycling behaviour for the tween.</summary>
             <param name="recyclable">If TRUE the tween will be recycled after being killed, otherwise it will be destroyed.</param>
         </member>
-        <member name="M:DG.Tweening.TweenParams.SetUpdate(System.Boolean)">
-            <summary>Sets the update type to the one defined in DOTween.defaultUpdateType (UpdateType.Normal unless changed)
+        <member name="M:DG.Tweening.TweenParams.SetTick(System.Boolean)">
+            <summary>Sets the update type to the one defined in DOTween.defaultTickType (TickType.Normal unless changed)
             and lets you choose if it should be independent from Unity's Time.timeScale</summary>
-            <param name="isIndependentUpdate">If TRUE the tween will ignore Unity's Time.timeScale</param>
+            <param name="isIndependentTick">If TRUE the tween will ignore Unity's Time.timeScale</param>
         </member>
-        <member name="M:DG.Tweening.TweenParams.SetUpdate(DG.Tweening.UpdateType,System.Boolean)">
+        <member name="M:DG.Tweening.TweenParams.SetTick(DG.Tweening.TickType,System.Boolean)">
             <summary>Sets the type of update (default or independent) for the tween</summary>
-            <param name="updateType">The type of update (default: UpdateType.Normal)</param>
-            <param name="isIndependentUpdate">If TRUE the tween will ignore Unity's Time.timeScale</param>
+            <param name="updateType">The type of update (default: TickType.Normal)</param>
+            <param name="isIndependentTick">If TRUE the tween will ignore Unity's Time.timeScale</param>
         </member>
         <member name="M:DG.Tweening.TweenParams.OnStart(DG.Tweening.TweenCallback)">
             <summary>Sets the onStart callback for the tween.
@@ -2032,8 +2032,8 @@
             either by calling <code>Rewind</code> or by reaching the start position while playing backwards.
             Rewinding a tween that is already rewinded will not fire this callback</summary>
         </member>
-        <member name="M:DG.Tweening.TweenParams.OnUpdate(DG.Tweening.TweenCallback)">
-            <summary>Sets the onUpdate callback for the tween.
+        <member name="M:DG.Tweening.TweenParams.OnTick(DG.Tweening.TweenCallback)">
+            <summary>Sets the onTick callback for the tween.
             Called each time the tween updates</summary>
         </member>
         <member name="M:DG.Tweening.TweenParams.OnStepComplete(DG.Tweening.TweenCallback)">
@@ -2142,18 +2142,18 @@
             <summary>Sets the recycling behaviour for the tween.</summary>
             <param name="recyclable">If TRUE the tween will be recycled after being killed, otherwise it will be destroyed.</param>
         </member>
-        <member name="M:DG.Tweening.TweenSettingsExtensions.SetUpdate``1(``0,System.Boolean)">
-            <summary>Sets the update type to UpdateType.Normal and lets you choose if it should be independent from Unity's Time.timeScale</summary>
-            <param name="isIndependentUpdate">If TRUE the tween will ignore Unity's Time.timeScale</param>
+        <member name="M:DG.Tweening.TweenSettingsExtensions.SetTick``1(``0,System.Boolean)">
+            <summary>Sets the update type to TickType.Normal and lets you choose if it should be independent from Unity's Time.timeScale</summary>
+            <param name="isIndependentTick">If TRUE the tween will ignore Unity's Time.timeScale</param>
         </member>
-        <member name="M:DG.Tweening.TweenSettingsExtensions.SetUpdate``1(``0,DG.Tweening.UpdateType)">
+        <member name="M:DG.Tweening.TweenSettingsExtensions.SetTick``1(``0,DG.Tweening.TickType)">
             <summary>Sets the type of update for the tween</summary>
-            <param name="updateType">The type of update (defalt: UpdateType.Normal)</param>
+            <param name="updateType">The type of update (defalt: TickType.Normal)</param>
         </member>
-        <member name="M:DG.Tweening.TweenSettingsExtensions.SetUpdate``1(``0,DG.Tweening.UpdateType,System.Boolean)">
+        <member name="M:DG.Tweening.TweenSettingsExtensions.SetTick``1(``0,DG.Tweening.TickType,System.Boolean)">
             <summary>Sets the type of update for the tween and lets you choose if it should be independent from Unity's Time.timeScale</summary>
             <param name="updateType">The type of update</param>
-            <param name="isIndependentUpdate">If TRUE the tween will ignore Unity's Time.timeScale</param>
+            <param name="isIndependentTick">If TRUE the tween will ignore Unity's Time.timeScale</param>
         </member>
         <member name="M:DG.Tweening.TweenSettingsExtensions.OnStart``1(``0,DG.Tweening.TweenCallback)">
             <summary>Sets the onStart callback for the tween.
@@ -2175,8 +2175,8 @@
             either by calling <code>Rewind</code> or by reaching the start position while playing backwards.
             Rewinding a tween that is already rewinded will not fire this callback</summary>
         </member>
-        <member name="M:DG.Tweening.TweenSettingsExtensions.OnUpdate``1(``0,DG.Tweening.TweenCallback)">
-            <summary>Sets the onUpdate callback for the tween.
+        <member name="M:DG.Tweening.TweenSettingsExtensions.OnTick``1(``0,DG.Tweening.TweenCallback)">
+            <summary>Sets the onTick callback for the tween.
             Called each time the tween updates</summary>
         </member>
         <member name="M:DG.Tweening.TweenSettingsExtensions.OnStepComplete``1(``0,DG.Tweening.TweenCallback)">
@@ -2436,7 +2436,7 @@
             either by calling <code>Rewind</code> or by reaching the start position while playing backwards.
             Rewinding a tween that is already rewinded will not fire this callback</summary>
         </member>
-        <member name="F:DG.Tweening.Tween.onUpdate">
+        <member name="F:DG.Tweening.Tween.onTick">
             <summary>Called each time the tween updates</summary>
         </member>
         <member name="F:DG.Tweening.Tween.onStepComplete">
@@ -2490,19 +2490,19 @@
             Used internally
             </summary>
         </member>
-        <member name="T:DG.Tweening.UpdateType">
+        <member name="T:DG.Tweening.TickType">
             <summary>
-            Update type
+            Tick type
             </summary>
         </member>
-        <member name="F:DG.Tweening.UpdateType.Normal">
-            <summary>Updates every frame during Update calls</summary>
+        <member name="F:DG.Tweening.TickType.Normal">
+            <summary>Ticks every frame during Tick calls</summary>
         </member>
-        <member name="F:DG.Tweening.UpdateType.Late">
-            <summary>Updates every frame during LateUpdate calls</summary>
+        <member name="F:DG.Tweening.TickType.Late">
+            <summary>Ticks every frame during LateTick calls</summary>
         </member>
-        <member name="F:DG.Tweening.UpdateType.Fixed">
-            <summary>Updates using FixedUpdate calls</summary>
+        <member name="F:DG.Tweening.TickType.Fixed">
+            <summary>Ticks using FixedTick calls</summary>
         </member>
     </members>
 </doc>

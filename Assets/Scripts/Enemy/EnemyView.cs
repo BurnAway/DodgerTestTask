@@ -4,15 +4,14 @@ using UnityEngine;
 
 public class EnemyView : MonoBehaviour
 {
-    private Enemy _model;
+    public Enemy Model { get; private set; }
 
     public void Initialize(Enemy model)
     {
-        _model = model;
+        Model = model;
     }
-    
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        _model.State.OnCollisionEnter(collision);
+        Model.State.OnCollisionEnter(collision);
     }
 }
